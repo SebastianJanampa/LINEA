@@ -4,15 +4,17 @@ _base_ = [
 	'./include/linea.py'
 	]
 
+output_dir = output/line_hgnetv2_n
+
 # backbone
-backbone = 'HGNetv2_B1'
+backbone = 'HGNetv2_B0'
 use_lab = True
 freeze_norm = False
 freeze_stem_only = True
 
 # transformer
 feat_strides = [8, 16, 32]
-hidden_dim = 256
+hidden_dim = 128
 dim_feedforward = 512
 nheads = 8
 use_lmap = False
@@ -35,21 +37,20 @@ reg_scale = 4
 eval_idx = 2
 
 # criterion
-epochs = 36
-lr_drop_list = [25]
+epochs = 72
+lr_drop_list = [60]
 weight_dict = {'loss_logits': 2, 'loss_line': 5}
-use_warmup = True
-warmup_iters = 625 * 5
+use_warmup = False
 
 # optimizer params
 model_parameters = [
 	{
     'params': '^(?=.*backbone)(?!.*norm|bn).*$',
-    'lr': 0.0001
+    'lr': 0.0004
     },
     {
     'params': '^(?=.*backbone)(?=.*norm|bn).*$',
-      'lr': 0.0001,
+      'lr': 0.0004,
       'weight_decay': 0.
     },
     {
@@ -57,6 +58,6 @@ model_parameters = [
     'weight_decay': 0.
     }
 ]
-lr = 0.0002
+lr = 0.0008
 betas = [0.9, 0.999]
 weight_decay = 0.0001
