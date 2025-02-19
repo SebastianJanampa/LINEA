@@ -1,0 +1,4 @@
+onnxruntime
+tensorrt
+pycuda
+tqdm
