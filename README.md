@@ -50,13 +50,20 @@ We highlight two advantages of our proposed mechanism:
 ### Wireframe
 | Model | Dataset | AP<sup>5</sup> | AP<sup>10</sup> | AP<sup>15</sup> | #Params | Latency | GFLOPs | config | checkpoint |
 | :---: | :---: | :---: |  :---: | :---: | :---: | :---: | :---: | :---: | :---: | 
-**LINEA&#8209;N** | Wireframe | **58.7** | **65.0** | **67.9** | 3.9M | 2.54ms | 12.1 | [py] | [65.0] | 
-**LINEA&#8209;S** | Wireframe | **58.4** | **64.7** | **67.6** | 8.6M | 3.08ms | 31.7 | [py] | [64.7] | 
-**LINEA&#8209;M** | Wireframe | **59.5** | **66.3** | **69.1** | 13.5M | 3.87ms | 45.6 | [py] | [66.3] | 
-**LINEA&#8209;L** | Wireframe | **61.0** | **67.9** | **70.8** | 25.2M | 5.78ms | 83.8 | [py] | [67.9] |
+**LINEA&#8209;N** | Wireframe | **58.7** | **65.0** | **67.9** | 3.9M | 2.54ms | 12.1 | [py](https://github.com/SebastianJanampa/LINEA/blob/master/configs/linea/linea_hgnetv2_n.py) | [65.0] | 
+**LINEA&#8209;S** | Wireframe | **58.4** | **64.7** | **67.6** | 8.6M | 3.08ms | 31.7 | [py](https://github.com/SebastianJanampa/LINEA/blob/master/configs/linea/linea_hgnetv2_s.py) | [64.7] | 
+**LINEA&#8209;M** | Wireframe | **59.5** | **66.3** | **69.1** | 13.5M | 3.87ms | 45.6 | [py](https://github.com/SebastianJanampa/LINEA/blob/master/configs/linea/linea_hgnetv2_m.py) | [66.3] | 
+**LINEA&#8209;L** | Wireframe | **61.0** | **67.9** | **70.8** | 25.2M | 5.78ms | 83.8 | [py](https://github.com/SebastianJanampa/LINEA/blob/master/configs/linea/linea_hgnetv2_l.py) | [67.9] |
+
+### YorkUrban
+| Model | Dataset | AP<sup>5</sup> | AP<sup>10</sup> | AP<sup>15</sup> | #Params | Latency | GFLOPs | config | checkpoint |
+| :---: | :---: | :---: |  :---: | :---: | :---: | :---: | :---: | :---: | :---: | 
+**LINEA&#8209;N** | YorkUrban | **27.3** | **30.5** | **32.5** | 3.9M | 2.54ms | 12.1 | [py](https://github.com/SebastianJanampa/LINEA/blob/master/configs/linea/linea_hgnetv2_n.py) | [65.0] | 
+**LINEA&#8209;S** | YorkUrban | **28.9** | **32.6** | **34.8** | 8.6M | 3.08ms | 31.7 | [py](https://github.com/SebastianJanampa/LINEA/blob/master/configs/linea/linea_hgnetv2_s.py) | [64.7] | 
+**LINEA&#8209;M** | YorkUrban | **30.3** | **34.5** | **36.7** | 13.5M | 3.87ms | 45.6 | [py](https://github.com/SebastianJanampa/LINEA/blob/master/configs/linea/linea_hgnetv2_m.py) | [66.3] | 
+**LINEA&#8209;L** | YorkUrban | **30.9** | **34.9** | **37.3** | 25.2M | 5.78ms | 83.8 | [py](https://github.com/SebastianJanampa/LINEA/blob/master/configs/linea/linea_hgnetv2_l.py) | [67.9] |
 
 **Notes:**
-- **AP<sup>val</sup>** is evaluated on *MSCOCO val2017* dataset.
 - **Latency** is evaluated on a single NVIDIA RTX A5500 GPU with $batch\\_size = 1$, $fp16$, and $TensorRT==10.4.0$.
 
 
