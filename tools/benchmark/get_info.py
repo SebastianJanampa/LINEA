@@ -5,13 +5,22 @@ Copyright (c) 2024 The D-FINE Authors. All Rights Reserved.
 import os
 import sys
 sys.path.insert(0, os.path.join(os.path.dirname(os.path.abspath(__file__)), '../..'))
+from util.slconfig import SLConfig
+from models.registry import MODULE_BUILD_FUNCS
 
 import argparse
 from calflops import calculate_flops
-from src.core import YAMLConfig
 
 import torch
 import torch.nn as nn
+
+def build_model_main(args):
+    # we use register to maintain models from catdet6 on.
+    from models.registry import MODULE_BUILD_FUNCS
+    assert args.modelname in MODULE_BUILD_FUNCS._module_dict
+    build_func = MODULE_BUILD_FUNCS.get(args.modelname)
+    model, criterion, postprocessors = build_func(args)
+    return model, criterion, postprocessors
 
 def custom_repr(self):
     return f'{{Tensor:{tuple(self.shape)}}} {original_repr(self)}'
@@ -21,17 +30,15 @@ torch.Tensor.__repr__ = custom_repr
 def main(args, ):
     """main
     """
-    cfg = YAMLConfig(args.config, resume=None)
-    class Model_for_flops(nn.Module):
-        def __init__(self, ) -> None:
-            super().__init__()
-            self.model = cfg.model.deploy()
+    cfg = SLConfig.fromfile(args.config)
+    
+    if 'HGNetv2' in cfg.backbone:
+        cfg.pretrained = False
 
-        def forward(self, images):
-            outputs = self.model(images)
-            return outputs
-
-    model = Model_for_flops().eval()
+    model, _, _= build_model_main(cfg)
+    
+    model = model.deploy()
+    model.eval()
 
     flops, macs, _ = calculate_flops(model=model,
                                      input_shape=(1, 3, 640, 640),
@@ -44,7 +51,7 @@ def main(args, ):
 if __name__ == '__main__':
 
     parser = argparse.ArgumentParser()
-    parser.add_argument('--config', '-c', default= "configs/dfine/dfine_hgnetv2_l_coco.yml", type=str)
+    parser.add_argument('--config', '-c', default= "configs/linea/linea_hgnetv2_lpy", type=str)
     args = parser.parse_args()
 
     main(args)

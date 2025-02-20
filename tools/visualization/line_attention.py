@@ -31,16 +31,15 @@ def main(args):
     cfg = SLConfig.fromfile(args.config)
     device = args.device
 
-    setattr(cfg, 'coco_path', args.coco_path)
+    setattr(cfg, 'coco_path', args.data_path)
+    setattr(cfg, 'batch_size_train', 1)
+    setattr(cfg, 'batch_size_val', 1)
 
     if 'HGNetv2' in cfg.backbone:
         cfg.pretrained = False
 
-    cfg.multiscale = None
-
     # build model
     model, criterion, _ = build_model_main(cfg)
-    model.to(device)
 
     dataset_val = build_dataset(image_set='val', args=cfg)
 
@@ -57,6 +56,9 @@ def main(args):
 
         # NOTE load train mode state -> convert to deploy mode
         model.load_state_dict(state)
+        
+    # change to device
+    model.to(device)
 
     # transformer parameters
     len_q = cfg.num_queries
@@ -65,12 +67,12 @@ def main(args):
     num_points_scale = torch.tensor([1/n for n in num_sampling_points for _ in range(n)], dtype=torch.float32).reshape(-1, 1)
 
     # folder path
-    model_name = args.config.split('/')[-1].split('.')[0]
-    if 'data/wireframe_processed' in args.coco_path:
-        append_path = f'logs/{model_name}/visualization/line_attention_wireframe'
+    main_folder = cfg.output_dir
+    if 'data/wireframe_processed' in args.data_path:
+        append_path = f'{main_folder}/visualization/line_attention_wireframe'
 
-    elif 'data/york_processed' in args.coco_path:
-        append_path = f'logs/{model_name}/visualization/line_attention_york'
+    elif 'data/york_processed' in args.data_path:
+        append_path = f'{main_folder}/visualization/line_attention_york'
     os.makedirs(append_path , exist_ok=True)
 
     with torch.no_grad():
@@ -129,9 +131,9 @@ def main(args):
             attention_weights = attention_weights[line_idx]
 
             # sampling points
-            for i in range(nheads):
-                x1, y1 = sampling_locations[i].split(1, dim=-1)
-                pos = ax.scatter(x1, y1, marker='*', c=attention_weights[i], cmap='jet', zorder=2)
+            for j in range(nheads):
+                x1, y1 = sampling_locations[j].split(1, dim=-1)
+                pos = ax.scatter(x1, y1, marker='*', c=attention_weights[j], cmap='jet', zorder=2)
             cbar = fig.colorbar(pos, ax=ax)
             cbar.ax.tick_params(size=0)
             cbar.set_ticks([])
@@ -148,9 +150,8 @@ def main(args):
             plt.savefig(f'{append_path}/{curr_img_id}.png', bbox_inches="tight", pad_inches=0.0, dpi=100)
             plt.close()
 
-            
             # check condition to stop program
-            if args.num_imgs is not None and i + 1 > args.num_imgs:
+            if args.num_images is not None and i + 1 => args.num_images:
                 break
 
 
@@ -158,8 +159,8 @@ if __name__ == '__main__':
     parser = argparse.ArgumentParser('Visualization of Deformable Line Attention')
     parser.add_argument('-c', '--config', type=str, required=True)
     parser.add_argument('-r', '--resume', default='', help='resume from checkpoint')
-    parser.add_argument('-p', '--path', type=str, default='data/wireframe_processed', help='data path')
+    parser.add_argument('-p', '--data-path', type=str, default='data/wireframe_processed', help='data path')
     parser.add_argument('-d', '--device', type=str, default='cpu')
-    parser.add_argument('-n', '--num_imgs', type=int, help='total number of images to plot')
+    parser.add_argument('-n', '--num_images', type=int, help='total number of images to plot')
     args = parser.parse_args()
     main(args)

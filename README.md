@@ -153,6 +153,7 @@ CUDA_VISIBLE_DEVICES=0 torchrun --master_port=7777 --nproc_per_node=1 main.py -c
 
 </details>
 
+<details>
 <summary> Customizing Batch Size </summary>
 
 For example, if you want to train with a total batch size of 16 when training **LINEA-L** on Wireframe:
@@ -160,6 +161,7 @@ For example, if you want to train with a total batch size of 16 when training **
 ```shell
 CUDA_VISIBLE_DEVICES=0,1,2,3 torchrun --master_port=7777 --nproc_per_node=4 main.py -c configs/linea/linea_hgnetv2_l.py --coco_path data/wireframe_processed --amp --options batch_size_train=16
 ```
+</details>
 
 <details>
 <summary> Customizing Input Size </summary>
@@ -229,18 +231,18 @@ export model=l  # n s m l
 <!-- <summary>5. Inference </summary> -->
 2. Inference (onnxruntime / tensorrt / torch)
 
-Inference on images and videos is now supported.
+Inference on images and videos is supported.
 
 For a single file
 ```shell
-python tools/inference/onnx_inf.py --onnx model.onnx --input example/example1.jpg  # video.mp4
+python tools/inference/onnx_inf.py --onnx model.onnx --input example/example1.jpg  
 python tools/inference/trt_inf.py --trt model.engine --input example/example1.jpg
 python tools/inference/torch_inf.py -c configs/dfine/linea_hgnetv2_${model}.yml -r <checkpoint.pth> --input example/example1.jpg --device cuda:0
 ```
 
 For a folder
 ```shell
-python tools/inference/onnx_inf.py --onnx model.onnx --input example  # video.mp4
+python tools/inference/onnx_inf.py --onnx model.onnx --input example  
 python tools/inference/trt_inf.py --trt model.engine --input example
 python tools/inference/torch_inf.py -c configs/dfine/linea_hgnetv2_${model}.yml -r <checkpoint.pth> --input example --device cuda:0
 ```
@@ -258,12 +260,17 @@ export model=l  # n s m l
 <!-- <summary>6. Benchmark </summary> -->
 2. Model FLOPs, MACs, and Params
 ```shell
-TODO
+python tools/benchmark/get_info.py --config configs/linea/linea_hgnetv2_${model}.py 
 ```
 
-2. TensorRT Latency
+3. TensorRT Latency
 ```shell
-python tools/benchmark/trt_benchmark.py --COCO_dir path/to/COCO2017 --engine_dir trt_engine
+python tools/benchmark/trt_benchmark.py --infer_dir ./data/wireframe_processed/val2017 --engine_dir trt_engine
+```
+
+4. Pytorch Latency
+```shell
+python tools/benchmark/torch_benchmark.py -c ./configs/linea/linea_hgnetv2_${model}.py --resume linea_hgnetv2_${model}.pth --infer_dir ./data/wireframe_processed/val2017
 ```
 </details>
 
@@ -273,14 +280,15 @@ python tools/benchmark/trt_benchmark.py --COCO_dir path/to/COCO2017 --engine_dir
 <details>
 <summary> Line attention </summary>
 ``` shell
-TODO
+python tools/visualization/line_attention.py -c ./configs/linea/linea_hgnetv2_${model}.py --resume linea_hgnetv2_${model}.pth --data-path ./data/wireframe_processed -d cuda --num_images 10
+
 ```
 </details>
 
 <details>
 <summary> Feature maps from the backbone and encoder </summary>
 ``` shell
-TODO
+python tools/visualization/backbone_encoder.py -c ./configs/linea/linea_hgnetv2_${model}.py --resume linea_hgnetv2_${model}.pth --data-path ./data/wireframe_processed -d cuda --num_images 10
 ```
 </details>
 

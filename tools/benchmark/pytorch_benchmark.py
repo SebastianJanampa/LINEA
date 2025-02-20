@@ -24,7 +24,7 @@ from models.registry import MODULE_BUILD_FUNCS
 
 def parse_args():
     parser = argparse.ArgumentParser(description='Argument Parser Example')
-    parser.add_argument('--config', '-c', default='configs/linea/linea_l.py', type=str, )
+    parser.add_argument('--config', '-c', default='./configs/linea/linea_hgnetv2_l.py', type=str, )
     parser.add_argument('--resume', '-r', type=str, )
     parser.add_argument('--infer_dir',
                         type=str,

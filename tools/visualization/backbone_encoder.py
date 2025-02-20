@@ -31,12 +31,12 @@ def main(args):
     cfg = SLConfig.fromfile(args.config)
     device = args.device
 
-    setattr(cfg, 'coco_path', args.coco_path)
+    setattr(cfg, 'coco_path', args.data_path)
+    setattr(cfg, 'batch_size_train', 1)
+    setattr(cfg, 'batch_size_val', 1)
 
     if 'HGNetv2' in cfg.backbone:
         cfg.pretrained = False
-
-    cfg.multiscale = None
 
     # build model
     model, criterion, _ = build_model_main(cfg)
@@ -59,14 +59,14 @@ def main(args):
         model.load_state_dict(state)
 
     # folder path
-    model_name = args.config.split('/')[-1].split('.')[0]
-    if 'data/wireframe_processed' in args.coco_path:
-        backbone_dir = f'logs/{model_name}/visualization/backbone_wireframe'
-        encoder_dir = f'logs/{model_name}/visualization/encoder_wireframe'
+    main_folder = cfg.output_dir
+    if 'data/wireframe_processed' in args.data_path:
+        backbone_dir = f'{main_folder}/visualization/backbone_wireframe'
+        encoder_dir = f'{main_folder}/visualization/encoder_wireframe'
 
-    elif 'data/york_processed' in args.coco_path:
-        backbone_dir = f'logs/{model_name}/visualization/backbone_york'
-        encoder_dir = f'logs/{model_name}/visualization/encoder_york'
+    elif 'data/york_processed' in args.data_path:
+        backbone_dir = f'{main_folder}/visualization/backbone_york'
+        encoder_dir = f'{main_folder}/visualization/encoder_york'
     else:
         raise 'Dataset does not exist. We support only wireframe and york datasets'
 
@@ -98,8 +98,8 @@ def main(args):
 
             curr_img_id = targets[0]['image_id'].tolist()[0]
 
-            for i, back_feat in enumerate(back_feats):
-                down = i + 1
+            for j, back_feat in enumerate(back_feats):
+                down = j + 1
 
                 back_feat = back_feat[0].mean(0).cpu()
 
@@ -114,8 +114,8 @@ def main(args):
                     )
                 plt.close()
 
-            for i, enc_feat in enumerate(enc_feats):
-                down = i + 1
+            for j, enc_feat in enumerate(enc_feats):
+                down = j + 1
 
                 enc_feat = enc_feat[0].mean(0).cpu()
 
@@ -131,7 +131,7 @@ def main(args):
                 plt.close()
 
             # check condition to stop program
-            if args.num_imgs is not None and i + 1 > args.num_imgs:
+            if args.num_images is not None and i + 1 => args.num_images:
                 break
 
 
@@ -139,8 +139,8 @@ if __name__ == '__main__':
     parser = argparse.ArgumentParser('Visualization of Deformable Line Attention')
     parser.add_argument('-c', '--config', type=str, required=True)
     parser.add_argument('-r', '--resume', default='', help='resume from checkpoint')
-    parser.add_argument('-p', '--path', type=str, default='data/wireframe_processed', help='data path')
+    parser.add_argument('-p', '--data-path', type=str, default='data/wireframe_processed', help='data path')
     parser.add_argument('-d', '--device', type=str, default='cpu')
-    parser.add_argument('-n', '--num_imgs', type=int, help='total number of images to plot')
+    parser.add_argument('-n', '--num_images', type=int, help='total number of images to plot')
     args = parser.parse_args()
     main(args)
