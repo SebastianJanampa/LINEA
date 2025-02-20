@@ -7,3 +7,5 @@ official_weights/
 models/dfine/
 clean_pth_files.py
 **/__pycache__/**
+configs/dfine/
+output/

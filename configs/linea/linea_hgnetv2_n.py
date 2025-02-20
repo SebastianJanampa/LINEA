@@ -4,7 +4,7 @@ _base_ = [
 	'./include/linea.py'
 	]
 
-output_dir = output/line_hgnetv2_n
+output_dir = 'output/line_hgnetv2_n'
 
 # backbone
 backbone = 'HGNetv2_B0'

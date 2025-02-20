@@ -19,7 +19,7 @@ from util.profiler import stats
 import util.misc as utils
 
 from datasets import build_dataset, LineEvaluator, BatchImageCollateFunction
-from engine import evaluate, train_one_epoch, test
+from engine import train_one_epoch, evaluate, test
 
 from tensorboardX import SummaryWriter
 from warmup import LinearWarmup
@@ -36,8 +36,8 @@ def get_args_parser():
     # dataset parameters
     parser.add_argument('--coco_path', type=str, default='data/wireframe_processed')
     # training parameters
-    parser.add_argument('--output_dir', default='',
-                        help='path where to save, empty for no saving')
+    # parser.add_argument('--output_dir', default='',
+    #                     help='path where to save, empty for no saving')
     parser.add_argument('--device', default='cuda',
                         help='device to use for training / testing')
     parser.add_argument('--seed', default=42, type=int)
@@ -85,6 +85,7 @@ def main(args):
             setattr(args, k, v)
         else:
             raise ValueError("Key {} can used by args only".format(k))
+    print(args)
 
     # setup tensorboar writer
     if not args.eval:
@@ -262,6 +263,4 @@ def main(args):
 if __name__ == '__main__':
     parser = argparse.ArgumentParser('LINEA training and evaluation script', parents=[get_args_parser()])
     args = parser.parse_args()
-    if args.output_dir:
-        Path(args.output_dir).mkdir(parents=True, exist_ok=True)
     main(args)
