@@ -113,7 +113,7 @@ CUDA_VISIBLE_DEVICES=0,1,2,3 torchrun --master_port=7777 --nproc_per_node=4 main
 <!-- <summary>2. Testing </summary> -->
 3. Testing
 ```shell
-CUDA_VISIBLE_DEVICES=0,1,2,3 torchrun --master_port=7777 --nproc_per_node=4 main.py -c configs/linea/linea_hgnetv2_${model}.py --coco_path data/wireframe_processed --amp  --eval --resume <checkpoit.pth>
+CUDA_VISIBLE_DEVICES=0 torchrun --master_port=7777 --nproc_per_node=1 main.py -c configs/linea/linea_hgnetv2_${model}.py --coco_path data/wireframe_processed --amp  --eval --resume <checkpoit.pth>
 ```
 
 4. Replicate results (optional)
@@ -122,7 +122,7 @@ CUDA_VISIBLE_DEVICES=0,1,2,3 torchrun --master_port=7777 --nproc_per_node=4 main
 wget https://github.com/SebastianJanampa/storage/releases/download/LINEA/linea_hgnetv2_${model}.pth
 
 # Second, run test
-CUDA_VISIBLE_DEVICES=0,1,2,3 torchrun --master_port=7777 --nproc_per_node=4 main.py -c configs/linea/linea_hgnetv2_${model}.py --coco_path data/wireframe_processed --amp  --eval --resume linea_hgnetv2_${model}.pth
+CUDA_VISIBLE_DEVICES=0 torchrun --master_port=7777 --nproc_per_node=1 main.py -c configs/linea/linea_hgnetv2_${model}.py --coco_path data/wireframe_processed --amp  --eval --resume linea_hgnetv2_${model}.pth
 ```
 
 </details>
@@ -279,13 +279,15 @@ python tools/benchmark/torch_benchmark.py -c ./configs/linea/linea_hgnetv2_${mod
 
 <details>
 <summary> Line attention </summary>
-``` shell
+  
+```shell
 python tools/visualization/line_attention.py -c ./configs/linea/linea_hgnetv2_${model}.py --resume linea_hgnetv2_${model}.pth --data-path ./data/wireframe_processed -d cuda --num_images 10
 ```
 </details>
 
 <details>
 <summary> Feature maps from the backbone and encoder </summary>
+  
 ``` shell
 python tools/visualization/backbone_encoder.py -c ./configs/linea/linea_hgnetv2_${model}.py --resume linea_hgnetv2_${model}.pth --data-path ./data/wireframe_processed -d cuda --num_images 10
 ```
