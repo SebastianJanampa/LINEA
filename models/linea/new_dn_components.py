@@ -9,7 +9,7 @@
 
 
 import torch
-from linea_utils import inverse_sigmoid
+from .linea_utils import inverse_sigmoid
 import torch.nn.functional as F
 
 def prepare_for_cdn(dn_args, training, num_queries, num_classes, hidden_dim, label_enc):

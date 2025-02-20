@@ -3,13 +3,17 @@ import torch.nn.functional as F
 from torch import nn
 from torchvision.transforms.functional import resize
 
-from util.misc import get_world_size, is_dist_avail_and_initialized
-
 from .utils import sigmoid_focal_loss
 
 from .matcher import build_matcher
 
 from .linea_utils import weighting_function, bbox2distance
+
+# TODO. Quick solution to make the model run on GoogleColab
+import os, sys
+sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "../../")))
+from util.misc import get_world_size, is_dist_avail_and_initialized
+
 
 class SetCriterion(nn.Module):
     """ This class computes the loss for Conditional DETR.
