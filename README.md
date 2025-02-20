@@ -281,7 +281,6 @@ python tools/benchmark/torch_benchmark.py -c ./configs/linea/linea_hgnetv2_${mod
 <summary> Line attention </summary>
 ``` shell
 python tools/visualization/line_attention.py -c ./configs/linea/linea_hgnetv2_${model}.py --resume linea_hgnetv2_${model}.pth --data-path ./data/wireframe_processed -d cuda --num_images 10
-
 ```
 </details>
 
