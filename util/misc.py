@@ -205,14 +205,6 @@ class MetricLogger(object):
             header, total_time_str, total_time / len(iterable)))
 
 
-def collate_fn(batch):
-
-    batch = list(zip(*batch))
-    # batch[0] = nested_tensor_from_tensor_list(batch[0])
-    batch[0] = torch.stack(batch[0])
-    return tuple(batch)
-
-
 def setup_for_distributed(is_master):
     """
     This function disables printing when not in master process
@@ -280,10 +272,4 @@ def init_distributed_mode(args):
         args.rank = 0
         args.local_rank = 0
         return
-
-
-def inverse_sigmoid(x, eps=1e-3):
-    x = x.clamp(min=0, max=1)
-    x1 = x.clamp(min=eps)
-    x2 = (1 - x).clamp(min=eps)
-    return torch.log(x1/x2)
+        

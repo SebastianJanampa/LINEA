@@ -16,13 +16,12 @@ from torch import nn, Tensor
 import torch.nn.functional as F 
 import torch.nn.init as init 
 
-from util.misc import inverse_sigmoid
 from .utils import gen_encoder_output_proposals, MLP, _get_activation_fn, gen_sineembed_for_position
 from .attention_mechanism import MSDeformAttn
 from .attention_mechanism import MSDeformLineAttn
 
 from .dn_components import prepare_for_cdn, dn_post_process
-from .linea_utils import weighting_function, distance2bbox
+from .linea_utils import weighting_function, distance2bbox, inverse_sigmoid
 
 
 def _get_clones(module, N, layer_share=False):
