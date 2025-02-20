@@ -3,12 +3,17 @@
   LINEA: Fast and accurate line detection using scalable transformers
 </h2>
 
+<p align="center">   
+  <a href="https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/drive/1Lqxe4ruXR_ly9YPxmOUwY4CA4sFEmL43#scrollTo=nthoulkvpQn3">
+        <img alt="colab" src="https://img.shields.io/badge/Colab-open-blue?logo=googlecolab">
+    </a>
+</p>
+
 <p align="center">
     📄 This is the official implementation of the paper:
     <br>
-   LINEA: Fast and accurate line detection using scalable transformers
+   LINEA: Fast and accurate line detection using scalable transformers        
 </p>
-
 
 
 <p align="center">
@@ -38,13 +43,14 @@ We highlight two advantages of our proposed mechanism:
 ## 🚀 Updates
 - [x] **\[2025.02.19\]** Release LINEA series.
 - [x] **\[2025.02.20\]** Release LINEA weights.
+- [x] **\[2025.02.20\]** Release [Google Colab Notebook](https://colab.research.google.com/drive/1Lqxe4ruXR_ly9YPxmOUwY4CA4sFEmL43#scrollTo=nthoulkvpQn3).
 
 ## 📝 TODO
 - [ ] Upload paper (currently under review)
 - [x] Upload requirements
 - [x] Upload LINEA weigths.
 - [ ] Create HuggingFace 🤗 demo.
-- [ ] Create Collab demo.
+- [x] Create Collab demo.
 
 ## Model Zoo
 
@@ -70,6 +76,8 @@ We highlight two advantages of our proposed mechanism:
 
 
 ## Quick start
+
+[![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/drive/1Lqxe4ruXR_ly9YPxmOUwY4CA4sFEmL43#scrollTo=nthoulkvpQn3)
 
 ### Setup
 
