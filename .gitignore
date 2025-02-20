@@ -9,3 +9,4 @@ clean_pth_files.py
 **/__pycache__/**
 configs/dfine/
 output/
+examples/output/

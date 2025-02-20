@@ -1,0 +1,9 @@
+torch>=2.0.1
+torchvision>=0.15.2
+scipy
+calflops
+transformers
+tensorboardx
+addict
+yapf
+pycocotools
