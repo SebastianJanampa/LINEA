@@ -39,7 +39,7 @@ class LINEA(nn.Module):
         backbone,
         encoder,
         decoder,
-        multiscale = None,
+        # multiscale = None,
         use_lmap = False
         ):
         """ Initializes the model.
@@ -55,9 +55,6 @@ class LINEA(nn.Module):
         self.backbone = backbone
         self.encoder = encoder
         self.decoder = decoder
-
-        # # multi-scale training
-        # self.multiscale = multiscale
 
         # for auxiliary branch
         if use_lmap:
@@ -82,10 +79,6 @@ class LINEA(nn.Module):
                - "aux_outputs": Optional, only returned when auxilary losses are activated. It is a list of
                                 dictionnaries containing the two above keys for each decoder layer.
         """
-        # if self.training and self.multiscale:
-        #     size = np.random.choice(self.multiscale)
-        #     samples = resize(samples, [size, size])
-
         features = self.backbone(samples)
 
         features = self.encoder(features)
@@ -157,7 +150,6 @@ def build_linea(args):
         backbone,
         encoder,
         decoder,
-        multiscale=args.multiscale, 
         use_lmap=args.use_lmap
     )
     

@@ -85,20 +85,24 @@ def main(args):
             setattr(args, k, v)
         else:
             raise ValueError("Key {} can used by args only".format(k))
-    print(args)
-
     # setup tensorboar writer
     if not args.eval:
         writer = SummaryWriter(args.output_dir)
+        os.makedirs(args.output_dir, exist_ok=True)
 
     if args.eval:
         if 'HGNetv2' in args.backbone:
             args.pretrained = False
 
-    # setup logger
-    os.makedirs(args.output_dir, exist_ok=True)
+    # setup eval_spatial_size
+    if isinstance(args.eval_spatial_size, int):
+        size = args.eval_spatial_size 
+        args.eval_spatial_size = [size, size]
 
+    assert args.eval_spatial_size[0] == args.eval_spatial_size[1], 'We only support square shapes'
     device = torch.device(args.device)
+
+    print(args)
 
     # fix the seed for reproducibility
     seed = args.seed + utils.get_rank()
@@ -138,17 +142,17 @@ def main(args):
             sampler_val = torch.utils.data.SequentialSampler(dataset_val)
         
         data_loader_train = DataLoader(dataset_train, 
-                                        args.batch_size, 
+                                        args.batch_size_train, 
                                         sampler=sampler_train, 
                                         drop_last=True,
-                                        collate_fn=BatchImageCollateFunction(base_size_repeat=3), 
+                                        collate_fn=BatchImageCollateFunction(base_size=args.eval_spatial_size[0], base_size_repeat=3), 
                                         # pin_memory=dataset_train.pin_memory,
                                         num_workers=args.num_workers)
         data_loader_val = DataLoader(dataset_val, 
-                                        64, 
+                                        args.batch_size_val, 
                                         sampler=sampler_val, 
                                         drop_last=False,
-                                        collate_fn=BatchImageCollateFunction(), 
+                                        collate_fn=BatchImageCollateFunction(base_size=args.eval_spatial_size[0]), 
                                         # pin_memory=dataset_val.pin_memory,
                                         num_workers=args.num_workers)
 

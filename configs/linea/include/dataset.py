@@ -5,5 +5,6 @@ data_aug_scales2_crop = [384, 600]
 
 
 data_aug_scale_overlap = None
-batch_size = 8
+batch_size_train = 8
+batch_size_val = 64
 

@@ -175,7 +175,7 @@ def build(image_set, args):
     else:
         use_lmap = args.use_lmap
 
-    bs = args.batch_size if 'train' in image_set else 64
+    bs = getattr(args, f'batch_size_{image_set}') 
     print(f'building {image_set}_dataloader with batch_size={bs}...')
     dataset = CocoDetection(img_folder, ann_file, 
             transforms=make_coco_transforms(image_set, args=args),

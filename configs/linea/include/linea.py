@@ -2,8 +2,6 @@
 modelname = 'linea'
 eval_spatial_size = (640, 640)
 eval_idx = 5 # 6 decoder layers
-multiscale = [480, 512, 544, 576, 608, 640, 672, 704, 736, 768, 800] + [eval_spatial_size[0]] * 2
-multiscale.sort()
 num_classes = 2
 
 ## backbone
