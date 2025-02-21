@@ -209,7 +209,7 @@ export model=l  # n s m l
 
 2. Export onnx
 ```shell
-python tools/deployment/export_onnx.py --check -c configs/dfine/dfine_hgnetv2_${model}_coco.yml -r model.pth
+python tools/deployment/export_onnx.py --check -c configs/linea/linea_hgnetv2_${model}_coco.yml -r model.pth
 ```
 
 3. Export [tensorrt](https://docs.nvidia.com/deeplearning/tensorrt/install-guide/index.html)
@@ -245,14 +245,14 @@ For a single file
 ```shell
 python tools/inference/onnx_inf.py --onnx model.onnx --input example/example1.jpg  
 python tools/inference/trt_inf.py --trt model.engine --input example/example1.jpg
-python tools/inference/torch_inf.py -c configs/dfine/linea_hgnetv2_${model}.yml -r <checkpoint.pth> --input example/example1.jpg --device cuda:0
+python tools/inference/torch_inf.py -c configs/linea/linea_hgnetv2_${model}.yml -r <checkpoint.pth> --input example/example1.jpg --device cuda:0
 ```
 
 For a folder
 ```shell
 python tools/inference/onnx_inf.py --onnx model.onnx --input example  
 python tools/inference/trt_inf.py --trt model.engine --input example
-python tools/inference/torch_inf.py -c configs/dfine/linea_hgnetv2_${model}.yml -r <checkpoint.pth> --input example --device cuda:0
+python tools/inference/torch_inf.py -c configs/linea/linea_hgnetv2_${model}.yml -r linea_hgnetv2_${model}t.pth --input example --device cuda:0
 ```
 </details>
 
@@ -282,11 +282,9 @@ python tools/benchmark/torch_benchmark.py -c ./configs/linea/linea_hgnetv2_${mod
 ```
 </details>
 
-<details open>
-<summary> Visualization </summary>
 
 <details>
-<summary> Line attention </summary>
+<summary> Visualization: Line attention </summary>
   
 ```shell
 python tools/visualization/line_attention.py -c ./configs/linea/linea_hgnetv2_${model}.py --resume linea_hgnetv2_${model}.pth --data-path ./data/wireframe_processed -d cuda --num_images 10
@@ -294,14 +292,13 @@ python tools/visualization/line_attention.py -c ./configs/linea/linea_hgnetv2_${
 </details>
 
 <details>
-<summary> Feature maps from the backbone and encoder </summary>
+<summary> Visualization: Feature maps from the backbone and encoder </summary>
   
 ``` shell
 python tools/visualization/backbone_encoder.py -c ./configs/linea/linea_hgnetv2_${model}.py --resume linea_hgnetv2_${model}.pth --data-path ./data/wireframe_processed -d cuda --num_images 10
 ```
 </details>
 
-</details>
 
 
 ## Citation

@@ -8,3 +8,4 @@
 # ------------------------------------------------------------------------
 
 from .linea import build_linea
+from .criterion import build_criterion

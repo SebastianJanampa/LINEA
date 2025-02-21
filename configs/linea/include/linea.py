@@ -1,5 +1,5 @@
 # model
-modelname = 'linea'
+modelname = 'LINEA'
 eval_spatial_size = (640, 640)
 eval_idx = 5 # 6 decoder layers
 num_classes = 2
@@ -45,6 +45,7 @@ set_cost_class = 2.0
 set_cost_lines = 5.0
 
 # criterion
+criterionname = 'LINEACRITERION'
 criterion_type = 'default'
 weight_dict = {'loss_logits': 1, 'loss_line': 5}
 losses = ['labels', 'lines'] 

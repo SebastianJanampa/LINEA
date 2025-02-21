@@ -13,19 +13,18 @@ import torch
 from torch.utils.data import DataLoader
 
 from util.slconfig import SLConfig
-import util.misc as utils
 
 import datasets
-from datasets import build_dataset
+from datasets import build_dataset, BatchImageCollateFunction
 
 
-def build_model_main(args):
+def create(args, classname):
     # we use register to maintain models from catdet6 on.
     from models.registry import MODULE_BUILD_FUNCS
-    assert args.modelname in MODULE_BUILD_FUNCS._module_dict
-    build_func = MODULE_BUILD_FUNCS.get(args.modelname)
-    model, criterion, postprocessors = build_func(args)
-    return model, criterion, postprocessors
+    class_module = getattr(args, classname)
+    assert class_module in MODULE_BUILD_FUNCS._module_dict
+    build_func = MODULE_BUILD_FUNCS.get(class_module)
+    return build_func(args)
 
 def main(args):
     cfg = SLConfig.fromfile(args.config)
@@ -39,13 +38,16 @@ def main(args):
         cfg.pretrained = False
 
     # build model
-    model, criterion, _ = build_model_main(cfg)
+    model, _ = create(cfg, 'modelname')
+    model.to(device)
+    
+    criterion = create(cfg, 'criterionname')
 
     dataset_val = build_dataset(image_set='val', args=cfg)
 
     sampler_val = torch.utils.data.SequentialSampler(dataset_val)
 
-    data_loader_val = DataLoader(dataset_val, 1, sampler=sampler_val, drop_last=False, collate_fn=utils.collate_fn, num_workers=4)
+    data_loader_val = DataLoader(dataset_val, 1, sampler=sampler_val, drop_last=False, collate_fn=BatchImageCollateFunction(), num_workers=4)
 
     if args.resume:
         checkpoint = torch.load(args.resume, map_location='cpu')
@@ -151,7 +153,7 @@ def main(args):
             plt.close()
 
             # check condition to stop program
-            if args.num_images is not None and i + 1 => args.num_images:
+            if args.num_images is not None and i + 1 >= args.num_images:
                 break
 
 

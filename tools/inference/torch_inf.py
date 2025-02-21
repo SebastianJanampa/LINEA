@@ -123,13 +123,13 @@ def process_file(model, device, file_path):
         process_video(model, device, file_path)
         print("Video processing complete.")
 
-def build_model_main(args):
+def create(args, classname):
     # we use register to maintain models from catdet6 on.
     from models.registry import MODULE_BUILD_FUNCS
-    assert args.modelname in MODULE_BUILD_FUNCS._module_dict
-    build_func = MODULE_BUILD_FUNCS.get(args.modelname)
-    model, criterion, postprocessors = build_func(args)
-    return model, criterion, postprocessors
+    class_module = getattr(args, classname)
+    assert class_module in MODULE_BUILD_FUNCS._module_dict
+    build_func = MODULE_BUILD_FUNCS.get(class_module)
+    return build_func(args)
 
 def main(args):
     # Global variable
@@ -144,7 +144,7 @@ def main(args):
     cfg.multiscale = None
 
     # build model
-    model, criterion, _ = build_model_main(cfg)
+    model, postprocessor = create(cfg, 'modelname')
 
     if args.resume:
         checkpoint = torch.load(args.resume, map_location="cpu", weights_only=False)

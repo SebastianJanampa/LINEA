@@ -1,17 +1,11 @@
 """
 Copyright (c) 2024 The D-FINE Authors. All Rights Reserved.
 """
-
-import pycuda.driver as cuda
-from utils import TimeProfiler
-import numpy as np
 import os
 import time
 import torch
 from torch import nn
 
-from collections import namedtuple, OrderedDict
-import glob
 import argparse
 from dataset import Dataset
 from tqdm import tqdm
@@ -33,14 +27,13 @@ def parse_args():
     args = parser.parse_args()
     return args
 
-def build_model_main(args):
+def create(args, classname):
     # we use register to maintain models from catdet6 on.
     from models.registry import MODULE_BUILD_FUNCS
-    assert args.modelname in MODULE_BUILD_FUNCS._module_dict
-    build_func = MODULE_BUILD_FUNCS.get(args.modelname)
-    model, criterion, postprocessors = build_func(args)
-    return model, criterion, postprocessors
-
+    class_module = getattr(args, classname)
+    assert class_module in MODULE_BUILD_FUNCS._module_dict
+    build_func = MODULE_BUILD_FUNCS.get(class_module)
+    return build_func(args)
 
 @torch.no_grad()
 def warmup(model, data, img_size, n):
@@ -78,7 +71,7 @@ def main():
     if 'HGNetv2' in cfg.backbone:
         cfg.pretrained = False
 
-    linea, _, postprocessor = build_model_main(cfg)
+    linea, postprocessor = create(cfg, 'modelname')
 
     if FLAGS.resume:
         checkpoint = torch.load(FLAGS.resume, map_location='cpu')

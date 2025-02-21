@@ -29,7 +29,6 @@ from ..registry import MODULE_BUILD_FUNCS
 from .hgnetv2 import build_hgnetv2
 from .hybrid_encoder_asymmetric_conv import build_hybrid_encoder_with_asymmetric_conv
 from .decoder import build_decoder
-from .criterion import build_criterion
 
 from .linea_utils import *
 
@@ -105,9 +104,8 @@ class LINEA(nn.Module):
 
 class PostProcess(nn.Module):
     """ This module converts the model's output into the format expected by the coco api"""
-    def __init__(self, num_select=100) -> None:
+    def __init__(self) -> None:
         super().__init__()
-        self.num_select = num_select
         self.deploy_mode = False
 
     @torch.no_grad()
@@ -138,7 +136,7 @@ class PostProcess(nn.Module):
         self.deploy_mode = True
         return self
 
-@MODULE_BUILD_FUNCS.registe_with_name(module_name='linea')
+@MODULE_BUILD_FUNCS.registe_with_name(module_name='LINEA')
 def build_linea(args):
     num_classes = args.num_classes
 
@@ -152,9 +150,7 @@ def build_linea(args):
         decoder,
         use_lmap=args.use_lmap
     )
-    
-    criterion = build_criterion(args)
 
-    postprocessors = PostProcess(num_select=args.num_select)
+    postprocessors = PostProcess()
 
-    return model, criterion, postprocessors
+    return model, postprocessors

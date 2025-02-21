@@ -9,13 +9,15 @@ from .matcher import build_matcher
 
 from .linea_utils import weighting_function, bbox2distance
 
+from ..registry import MODULE_BUILD_FUNCS
+
 # TODO. Quick solution to make the model run on GoogleColab
 import os, sys
 sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "../../")))
 from util.misc import get_world_size, is_dist_avail_and_initialized
 
 
-class SetCriterion(nn.Module):
+class LINEACriterion(nn.Module):
     """ This class computes the loss for Conditional DETR.
     The process happens in two steps:
         1) we compute hungarian assignment between ground truth boxes and the outputs of the model
@@ -234,7 +236,7 @@ class SetCriterion(nn.Module):
 
         return single_pad,num_dn_groups
 
-class DFINESetCriterion(SetCriterion):
+class DFINESetCriterion(LINEACriterion):
     def __init__(self, num_classes, matcher, weight_dict, focal_alpha, reg_max, losses):
         super().__init__(num_classes, matcher, weight_dict, focal_alpha, losses)
         self.reg_max = reg_max
@@ -497,14 +499,14 @@ class DFINESetCriterion(SetCriterion):
 
         return losses
 
-
+@MODULE_BUILD_FUNCS.registe_with_name(module_name='LINEACRITERION')
 def build_criterion(args):
     num_classes = args.num_classes
     
     matcher = build_matcher(args)
 
     if args.criterion_type == 'default':
-        criterion = SetCriterion(num_classes, matcher=matcher, weight_dict=args.weight_dict,
+        criterion = LINEACriterion(num_classes, matcher=matcher, weight_dict=args.weight_dict,
                              focal_alpha=args.focal_alpha, losses=args.losses)
     elif args.criterion_type == 'dfine':
         criterion = DFINESetCriterion(num_classes, matcher=matcher, weight_dict=args.weight_dict,

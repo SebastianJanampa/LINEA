@@ -60,14 +60,13 @@ def get_args_parser():
     return parser
 
 
-def build_model_main(args):
+def create(args, classname):
     # we use register to maintain models from catdet6 on.
     from models.registry import MODULE_BUILD_FUNCS
-    assert args.modelname in MODULE_BUILD_FUNCS._module_dict
-    build_func = MODULE_BUILD_FUNCS.get(args.modelname)
-    model, criterion, postprocessors = build_func(args)
-    return model, criterion, postprocessors
-
+    class_module = getattr(args, classname)
+    assert class_module in MODULE_BUILD_FUNCS._module_dict
+    build_func = MODULE_BUILD_FUNCS.get(class_module)
+    return build_func(args)
 
 def main(args):
     utils.init_distributed_mode(args)
@@ -111,7 +110,8 @@ def main(args):
     random.seed(seed)
 
     # build model
-    model, criterion, postprocessors = build_model_main(args)
+    model, postprocessors = create(args, 'modelname')
+    criterion = create(args, 'criterionname')
     model.to(device)
 
     model_without_ddp = model
