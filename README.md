@@ -3,16 +3,25 @@
   LINEA: Fast and accurate line detection using scalable transformers
 </h2>
 
-<p align="center">   
-  <a href="https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/drive/1Lqxe4ruXR_ly9YPxmOUwY4CA4sFEmL43#scrollTo=nthoulkvpQn3">
-        <img alt="colab" src="https://img.shields.io/badge/Colab-open-blue?logo=googlecolab">
-    </a>
+<p align="center">
+  <a href="https://github.com/SebastianJanampa/LINEA/master/LICENSE">
+        <img alt="colab" src="https://img.shields.io/badge/lincense-apache%202.0-blue?style=for-the-badge">
+  </a>
+
+  <a href="https://colab.research.google.com/github/SebastianJanampa/LINEA/blob/master/LINEA_tutorial.ipynb">
+        <img alt="colab" src="https://img.shields.io/badge/-colab-blue?style=for-the-badge&logo=googlecolab&logoColor=white&labelColor=%23daa204&color=yellow">
+  </a>
+
+  <a href=''>
+      <img src='https://img.shields.io/badge/-SPACE-orange?style=for-the-badge&logo=huggingface&logoColor=white&labelColor=FF5500&color=orange'>
+   </a>
+   
 </p>
 
 <p align="center">
     📄 This is the official implementation of the paper:
     <br>
-   LINEA: Fast and accurate line detection using scalable transformers        
+   LINEA: Fast and accurate line detection using scalable transformers
 </p>
 
 
@@ -43,7 +52,7 @@ We highlight two advantages of our proposed mechanism:
 ## 🚀 Updates
 - [x] **\[2025.02.19\]** Release LINEA series.
 - [x] **\[2025.02.20\]** Release LINEA weights.
-- [x] **\[2025.02.20\]** Release [Google Colab Notebook](https://colab.research.google.com/drive/1Lqxe4ruXR_ly9YPxmOUwY4CA4sFEmL43#scrollTo=nthoulkvpQn3).
+- [x] **\[2025.02.20\]** Release [Google Colab Notebook](https://colab.research.google.com/github/SebastianJanampa/LINEA/blob/master/LINEA_tutorial.ipynb).
 
 ## 📝 TODO
 - [ ] Upload paper (currently under review)
@@ -316,4 +325,5 @@ Our work is built upon [DT-LSD](https://github.com/SebastianJanampa/DT-LSD) and 
 Thanks to the inspirations from [DT-LSD](https://github.com/SebastianJanampa/DT-LSD), [D-FINE](https://github.com/Peterande/D-FINE), [RT-DETR](https://github.com/lyuwenyu/RT-DETR), and [LETR](https://github.com/mlpc-ucsd/LETR).
 
 ✨ Feel free to contribute and reach out if you have any questions! ✨
+
 
