@@ -13,7 +13,7 @@ import util.misc as utils
 
 def train_one_epoch(model: torch.nn.Module, criterion: torch.nn.Module,
                     data_loader: Iterable, optimizer: torch.optim.Optimizer,
-                    device: torch.device, epoch: int, max_norm: float = 0, 
+                    device: torch.device, epoch: int, max_norm: float = 0, writer=None,
                     lr_scheduler=None, warmup_scheduler=None, args=None, ema_m=None):
     scaler = torch.amp.GradScaler(str(device), enabled=args.amp)
     model.train()
@@ -23,10 +23,13 @@ def train_one_epoch(model: torch.nn.Module, criterion: torch.nn.Module,
     header = 'Epoch: [{}]'.format(epoch)
     print_freq = 500
     
-    for samples, targets in metric_logger.log_every(data_loader, print_freq, header):
+    for i, (samples, targets) in enumerate(metric_logger.log_every(data_loader, print_freq, header)):
 
         samples = samples.to(device)
         targets = [{k: v.to(device) for k, v in t.items()} for t in targets]
+
+        global_step = epoch * len(data_loader) + i
+
 
         with torch.amp.autocast(str(device), enabled=args.amp):
             outputs = model(samples, targets)
@@ -72,13 +75,17 @@ def train_one_epoch(model: torch.nn.Module, criterion: torch.nn.Module,
         metric_logger.update(loss=loss_value, **loss_dict_reduced)
         metric_logger.update(lr=optimizer.param_groups[0]["lr"])     
 
+        if writer and utils.is_main_process() and global_step % 10 == 0:
+            writer.add_scalar('Loss/total', loss_value, global_step)
+            for j, pg in enumerate(optimizer.param_groups):
+                writer.add_scalar(f'Lr/pg_{j}', pg['lr'], global_step)
+            for k, v in loss_dict_reduced.items():
+                writer.add_scalar(f'Loss/{k}', v.item(), global_step)
+
     # gather the stats from all processes
     metric_logger.synchronize_between_processes()
     print("Averaged stats:", metric_logger)
-    resstat = {k: meter.global_avg for k, meter in metric_logger.meters.items() if meter.count > 0}
-    if getattr(criterion, 'loss_weight_decay', False):
-        resstat.update({f'weight_{k}': v for k,v in criterion.weight_dict.items()})
-    return resstat
+    return {k: meter.global_avg for k, meter in metric_logger.meters.items() if meter.count > 0}
 
 
 @torch.no_grad()

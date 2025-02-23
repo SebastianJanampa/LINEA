@@ -156,13 +156,16 @@ def main(args):
                                         # pin_memory=dataset_val.pin_memory,
                                         num_workers=args.num_workers)
 
+    # setup lr_drop_list
+    if isinstance(args.lr_drop_list , int):
+        args.lr_drop_list = [args.lr_drop_list]
     lr_scheduler = torch.optim.lr_scheduler.MultiStepLR(optimizer, milestones=args.lr_drop_list, gamma=0.1)
     warmup_scheduler = LinearWarmup(lr_scheduler, args.warmup_iters) if args.use_warmup else None
 
     output_dir = Path(args.output_dir)
 
     if args.resume:
-        checkpoint = torch.load(args.resume, map_location='cpu')   
+        checkpoint = torch.load(args.resume, map_location='cpu', weights_only=False)   
         model_without_ddp.load_state_dict(checkpoint['model'], strict=False)
 
         if not args.eval and 'optimizer' in checkpoint and 'lr_scheduler' in checkpoint and 'epoch' in checkpoint:
@@ -199,14 +202,15 @@ def main(args):
             sampler_train.set_epoch(epoch)
         train_stats = train_one_epoch(
             model, criterion, data_loader_train, optimizer, device, epoch,
-            args.clip_max_norm, lr_scheduler=lr_scheduler, warmup_scheduler=warmup_scheduler, args=args)
+            args.clip_max_norm, lr_scheduler=lr_scheduler, warmup_scheduler=warmup_scheduler, 
+            writer=writer, args=args)
         if args.output_dir:
             checkpoint_paths = [output_dir / 'checkpoint.pth']
 
-        if warmup_scheduler is None:
+        if warmup_scheduler is None or warmup_scheduler.finished():
             lr_scheduler.step()
-        elif warmup_scheduler.finished():
-            lr_scheduler.step()
+        else:
+            print(warmup_scheduler.last_step)
 
         if args.output_dir:
             checkpoint_paths = [output_dir / 'checkpoint.pth']
@@ -228,22 +232,18 @@ def main(args):
         test_stats = evaluate(
             model, criterion, postprocessors, data_loader_val, device, args.output_dir, args=args
         )
-        
-        log_stats = {
-            **{f'train_{k}': v for k, v in train_stats.items()},
-            **{f'test_{k}': v for k, v in test_stats.items()},
-        }
 
         if utils.is_main_process():
-            for key in log_stats:
-                if key not in ["epoch", "now_time"]:
-                    writer.add_scalar(key, log_stats[key], epoch)
+            for k in test_stats:
+                writer.add_scalar(f'Test/{k}'.format(k), test_stats[k], epoch)
             
-        ep_paras = {
+        log_stats = {
+                **{f'train_{k}': v for k, v in train_stats.items()},
+                **{f'test_{k}': v for k, v in test_stats.items()},
                 'epoch': epoch,
                 'n_parameters': n_parameters
             }
-        log_stats.update(ep_paras)
+
         try:
             log_stats.update({'now_time': str(datetime.datetime.now())})
         except:
