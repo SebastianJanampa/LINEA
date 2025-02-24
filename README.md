@@ -5,14 +5,14 @@
 
 <p align="center">
   <a href="https://github.com/SebastianJanampa/LINEA/master/LICENSE">
-        <img alt="colab" src="https://img.shields.io/badge/lincense-apache%202.0-blue?style=for-the-badge">
+        <img alt="colab" src="https://img.shields.io/badge/license-apache%202.0-blue?style=for-the-badge">
   </a>
 
   <a href="https://colab.research.google.com/github/SebastianJanampa/LINEA/blob/master/LINEA_tutorial.ipynb">
         <img alt="colab" src="https://img.shields.io/badge/-colab-blue?style=for-the-badge&logo=googlecolab&logoColor=white&labelColor=%23daa204&color=yellow">
   </a>
 
-  <a href=''>
+  <a href='https://huggingface.co/spaces/SebasJanampa/LINEA'>
       <img src='https://img.shields.io/badge/-SPACE-orange?style=for-the-badge&logo=huggingface&logoColor=white&labelColor=FF5500&color=orange'>
    </a>
    
@@ -53,12 +53,13 @@ We highlight two advantages of our proposed mechanism:
 - [x] **\[2025.02.19\]** Release LINEA series.
 - [x] **\[2025.02.20\]** Release LINEA weights.
 - [x] **\[2025.02.20\]** Release [Google Colab Notebook](https://colab.research.google.com/github/SebastianJanampa/LINEA/blob/master/LINEA_tutorial.ipynb).
+- [x] **\[2025.02.20\]** Release [HuggingFace 🤗 Space](https://huggingface.co/spaces/SebasJanampa/LINEA).
 
 ## 📝 TODO
 - [ ] Upload paper (currently under review)
 - [x] Upload requirements
 - [x] Upload LINEA weigths.
-- [ ] Create HuggingFace 🤗 demo.
+- [x] Create HuggingFace 🤗 space.
 - [x] Create Collab demo.
 
 ## Model Zoo
@@ -80,13 +81,14 @@ We highlight two advantages of our proposed mechanism:
 **LINEA&#8209;L** | YorkUrban | **30.9** | **34.9** | **37.3** | 25.2M | 5.78ms | 83.8 | [py](https://github.com/SebastianJanampa/LINEA/blob/master/configs/linea/linea_hgnetv2_l.py) | [67.9](https://github.com/SebastianJanampa/storage/releases/download/LINEA/linea_hgnetv2_l.pth) |
 
 **Notes:**
-- **Latency** is evaluated on a single NVIDIA RTX A5500 GPU with $batch\\_size = 1$, $fp16$, and $TensorRT==10.4.0$.
+- **Latency** is evaluated on a single NVIDIA RTX A5500 GPU with $batch\\_size = 1$, $fp16$, and $TensorRT==10.5.0$.
 
 
 
 ## Quick start
 
 [![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/drive/1Lqxe4ruXR_ly9YPxmOUwY4CA4sFEmL43#scrollTo=nthoulkvpQn3)
+[![Open in Spaces](https://huggingface.co/datasets/huggingface/badges/resolve/main/open-in-hf-spaces-sm.svg)](https://huggingface.co/spaces/SebasJanampa/LINEA)
 
 ### Setup
 
@@ -156,7 +158,7 @@ export model=l  # n s m l
 <!-- <summary>2. Testing </summary> -->
 2. Testing
 ```shell
-CUDA_VISIBLE_DEVICES=0 torchrun --master_port=7777 --nproc_per_node=1 main.py -c configs/linea/linea_hgnetv2_${model}.py --coco_path data/york_processed --amp  --eval --resume <checkpoit.pth>
+CUDA_VISIBLE_DEVICES=0 torchrun --master_port=7777 --nproc_per_node=1 main.py -c configs/linea/linea_hgnetv2_${model}.py --coco_path data/york_processed --amp  --eval --resume linea_hgnetv2_${model}.pth
 ```
 
 3. Replicate results (optional)
@@ -218,7 +220,7 @@ export model=l  # n s m l
 
 2. Export onnx
 ```shell
-python tools/deployment/export_onnx.py --check -c configs/linea/linea_hgnetv2_${model}_coco.yml -r model.pth
+python tools/deployment/export_onnx.py --check -c configs/linea/linea_hgnetv2_${model}_coco.yml -r linea_hgnetv2_${model}.pth
 ```
 
 3. Export [tensorrt](https://docs.nvidia.com/deeplearning/tensorrt/install-guide/index.html)
@@ -282,7 +284,7 @@ python tools/benchmark/get_info.py --config configs/linea/linea_hgnetv2_${model}
 
 3. TensorRT Latency
 ```shell
-python tools/benchmark/trt_benchmark.py --infer_dir ./data/wireframe_processed/val2017 --engine_dir trt_engine
+python tools/benchmark/trt_benchmark.py --infer_dir ./data/wireframe_processed/val2017 --engine_dir trt_engines
 ```
 
 4. Pytorch Latency

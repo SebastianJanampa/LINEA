@@ -7,49 +7,36 @@ Copyright (c) 2023 lyuwenyu. All Rights Reserved.
 """
 
 import copy
+import math
 from typing import Optional
 
 import torch 
 from torch import nn, Tensor
 import torch.nn.functional as F 
 
+from .linea_utils import get_activation
 
-def get_activation(act: str, inpace: bool=True):
-    """get activation
-    """
-    if act is None:
-        return nn.Identity()
 
-    elif isinstance(act, nn.Module):
-        return act 
+class CBLinear(nn.Module):
+    def __init__(self, c1, c2s, k=1, s=1, p=None, g=1):  # ch_in, ch_outs, kernel, stride, padding, groups
+        super(CBLinear, self).__init__()
+        self.c2s = c2s
+        self.conv = nn.Conv2d(c1, sum(c2s), k, s, 0, groups=g, bias=True)
 
-    act = act.lower()
-    
-    if act == 'silu' or act == 'swish':
-        m = nn.SiLU()
+    def forward(self, x):
+        outs = self.conv(x).split(self.c2s, dim=1)
+        return outs
 
-    elif act == 'relu':
-        m = nn.ReLU()
+class CBFuse(nn.Module):
+    def __init__(self, idx):
+        super(CBFuse, self).__init__()
+        self.idx = idx
 
-    elif act == 'leaky_relu':
-        m = nn.LeakyReLU()
-
-    elif act == 'silu':
-        m = nn.SiLU()
-    
-    elif act == 'gelu':
-        m = nn.GELU()
-
-    elif act == 'hardsigmoid':
-        m = nn.Hardsigmoid()
-
-    else:
-        raise RuntimeError('')  
-
-    if hasattr(m, 'inplace'):
-        m.inplace = inpace
-    
-    return m 
+    def forward(self, xs):
+        target_size = xs[-1].shape[2:]
+        res = [F.interpolate(x[self.idx[i]], size=target_size, mode='nearest') for i, x in enumerate(xs[:-1])]
+        out = torch.sum(torch.stack(res + xs[-1:]), dim=0)
+        return out
 
 class ConvNormLayer_fuse(nn.Module):
     def __init__(self, ch_in, ch_out, kernel_size, stride, g=1, padding=None, bias=False, act=None):
@@ -139,21 +126,19 @@ class VGGBlock(nn.Module):
         super().__init__()
         self.ch_in = ch_in
         self.ch_out = ch_out
-        assert ch_out % 2 == 0
+        self.convH = ConvNormLayer(ch_in, ch_out, (3, 1), 1, padding=(1, 0), act=None)
+        self.convW = ConvNormLayer(ch_in, ch_out, (1, 3), 1, padding=(0, 1), act=None)
         self.conv1 = ConvNormLayer(ch_in, ch_out, 3, 1, padding=1, act=None)
         self.conv2 = ConvNormLayer(ch_in, ch_out, 1, 1, padding=0, act=None)
-        # self.conv1H = ConvNormLayer(ch_in, ch_out//2 , (3, 1), 1, padding=(1, 0), act=None)
-        # self.conv1W = ConvNormLayer(ch_in, ch_out//2, (1, 3), 1, padding=(0, 1), act=None)
-        # self.conv2H = ConvNormLayer(ch_in, ch_out//2, 1, 1, padding=0, act=None)
-        # self.conv2W = ConvNormLayer(ch_in, ch_out//2, 1, 1, padding=0, act=None)
-        # self.conv3 = ConvNormLayer(ch_out, ch_out, 1, 1, padding=0, act=None)
         self.act = nn.Identity() if act is None else get_activation(act) 
 
     def forward(self, x):
         if hasattr(self, 'conv'):
             y = self.conv(x)
         else:
-            y = self.conv1(x) + self.conv2(x)
+            y_vertical = self.convH(x) 
+            y_horizontal = self.convW(x) 
+            y = self.conv1(x) + self.conv2(x) + y_horizontal + y_vertical
 
         return self.act(y)
 
@@ -164,20 +149,31 @@ class VGGBlock(nn.Module):
         kernel, bias = self.get_equivalent_kernel_bias()
         self.conv.weight.data = kernel
         self.conv.bias.data = bias 
-        # self.__delattr__('conv1')
-        # self.__delattr__('conv2')
+        self.__delattr__('conv1')
+        self.__delattr__('conv2') 
+        self.__delattr__('convH')
+        self.__delattr__('convW')
 
     def get_equivalent_kernel_bias(self):
         kernel3x3, bias3x3 = self._fuse_bn_tensor(self.conv1)
         kernel1x1, bias1x1 = self._fuse_bn_tensor(self.conv2)
+        kernel3x1, bias3x1 = self._fuse_bn_tensor(self.convH)
+        kernel1x3, bias1x3 = self._fuse_bn_tensor(self.convW)
         
-        return kernel3x3 + self._pad_1x1_to_3x3_tensor(kernel1x1), bias3x3 + bias1x1
+        kernel = kernel3x3  + self._pad_1x1_to_3x3_tensor(kernel1x1) + self._pad_1x1_to_3x3_tensor(kernel3x1, 'Vertical') + self._pad_1x1_to_3x3_tensor(kernel1x3, 'Horizontal')
+        bias = bias3x3 + bias1x1 + bias3x1 + bias1x3
+        return kernel, bias
 
-    def _pad_1x1_to_3x3_tensor(self, kernel1x1):
+    def _pad_1x1_to_3x3_tensor(self, kernel1x1, assymetric='None'):
         if kernel1x1 is None:
             return 0
         else:
-            return F.pad(kernel1x1, [1, 1, 1, 1])
+            if assymetric == 'None':
+                return F.pad(kernel1x1, [1, 1, 1, 1])
+            elif assymetric == 'Vertical':
+                return F.pad(kernel1x1, [1, 1, 0, 0])
+            elif assymetric == 'Horizontal':
+                return F.pad(kernel1x1, [0, 0, 1, 1])
 
     def _fuse_bn_tensor(self, branch: ConvNormLayer):
         if branch is None:
@@ -325,27 +321,49 @@ class TransformerEncoder(nn.Module):
         return output
 
 
-class HybridEncoder(nn.Module):
-    def __init__(self,
-                 n_levels=3,
-                 hidden_dim=256,
-                 nhead=8,
-                 dim_feedforward = 1024,
-                 dropout=0.0,
-                 enc_act='gelu',
-                 use_encoder_idx=[2],
-                 num_encoder_layers=1,
-                 expansion=1.0,
-                 depth_mult=1.0,
-                 act='silu',
-                 eval_spatial_size=None
+class HybridEncoderAsymConv(nn.Module):
+    def __init__(
+            self,
+            in_channels=[512, 1024, 2048],
+            feat_strides=[8, 16, 32],
+            n_levels=3,
+            hidden_dim=256,
+            nhead=8,
+            dim_feedforward = 1024,
+            dropout=0.0,
+            enc_act='gelu',
+            use_encoder_idx=[2],
+            num_encoder_layers=1,
+            expansion=1.0,
+            depth_mult=1.0,
+            act='silu',
+            eval_spatial_size=None,
+            # position embedding
+            temperatureH=20,
+            temperatureW=20,
         ):
         super().__init__()
+        self.in_channels = in_channels
+        self.feat_strides = feat_strides
         self.n_levels = n_levels
         self.hidden_dim = hidden_dim
         self.use_encoder_idx = use_encoder_idx
         self.num_encoder_layers = num_encoder_layers
         self.eval_spatial_size = eval_spatial_size
+
+        self.temperatureW = temperatureW
+        self.temperatureH = temperatureH
+
+        # channel projection
+        input_proj_list = []
+        for in_channel in in_channels:
+            input_proj_list.append(
+                nn.Sequential(
+                    nn.Conv2d(in_channel, hidden_dim, kernel_size=1, bias=False),
+                    nn.GroupNorm(32, hidden_dim)
+                )
+            )
+        self.input_proj = nn.ModuleList(input_proj_list)
 
         # encoder transformer
         encoder_layer = TransformerEncoderLayer(
@@ -355,7 +373,9 @@ class HybridEncoder(nn.Module):
             dropout=dropout,
             activation=enc_act)
 
-        self.encoder = TransformerEncoder(copy.deepcopy(encoder_layer), num_encoder_layers) 
+        self.encoder = nn.ModuleList([
+            TransformerEncoder(copy.deepcopy(encoder_layer), num_encoder_layers) for _ in range(len(use_encoder_idx))
+        ])
 
         # top-down fpn
         self.lateral_convs = nn.ModuleList()
@@ -380,57 +400,80 @@ class HybridEncoder(nn.Module):
                 # CSPRepLayer(hidden_dim * 2, hidden_dim, round(3 * depth_mult), act=act, expansion=expansion)
             )
 
-    #     self._reset_parameters()
+        self._reset_parameters()
 
-    # def _reset_parameters(self):
-    #     if self.eval_spatial_size:
-    #         for idx in self.use_encoder_idx:
-    #             stride = self.feat_strides[idx]
-    #             pos_embed = self.build_2d_sincos_position_embedding(
-    #                 self.eval_spatial_size[1] // stride, self.eval_spatial_size[0] // stride,
-    #                 self.hidden_dim, self.pe_temperature)
-    #             setattr(self, f'pos_embed{idx}', pos_embed)
-    #             # self.register_buffer(f'pos_embed{idx}', pos_embed)
+    def _reset_parameters(self):
+        # init input_proj
+        for proj in self.input_proj:
+            nn.init.xavier_uniform_(proj[0].weight, gain=1)
+            # nn.init.constant_(proj[0].bias, 0)
 
-    def forward(self, 
-            src: Tensor, 
-            pos: Tensor, 
-            spatial_shapes: Tensor, 
-            level_start_index: Tensor, 
-            valid_ratios: Tensor, 
-            key_padding_mask: Tensor,
-            ref_token_index: Optional[Tensor]=None,
-            ref_token_coord: Optional[Tensor]=None 
-            ):
+        if self.eval_spatial_size is not None:
+            for idx in self.use_encoder_idx:
+                stride = self.feat_strides[idx]
+                pos_embed = self.create_sinehw_position_embedding(
+                self.eval_spatial_size[1] // stride, 
+                self.eval_spatial_size[0] // stride,
+                self.hidden_dim // 2
+                )
+                setattr(self, f'pos_embed{idx}', pos_embed)
+
+    def create_sinehw_position_embedding(self, w, h, hidden_dim, scale=None, device='cpu'):
+        """
+        """
+        grid_w = torch.arange(1, int(w)+1, dtype=torch.float32, device=device)
+        grid_h = torch.arange(1, int(h)+1, dtype=torch.float32, device=device)
+
+        grid_h, grid_w = torch.meshgrid(grid_h, grid_w, indexing='ij')
+
+        if scale is None:
+            scale = 2 * math.pi
+
+        eps = 1e-6
+        grid_w = grid_w / (int(w) + eps) * scale
+        grid_h = grid_h / (int(h) + eps) * scale
+
+        dim_tx = torch.arange(hidden_dim, dtype=torch.float32, device=device)
+        dim_tx = self.temperatureW ** (2 * (dim_tx // 2) / hidden_dim)
+        pos_x = grid_w[..., None] / dim_tx
+
+        dim_ty = torch.arange(hidden_dim, dtype=torch.float32, device=device)
+        dim_ty = self.temperatureH ** (2 * (dim_ty // 2) / hidden_dim)
+        pos_y = grid_h[..., None] / dim_ty
+
+        pos_x = torch.stack((pos_x[:, :, 0::2].sin(), pos_x[:, :, 1::2].cos()), dim=3).flatten(2)
+        pos_y = torch.stack((pos_y[:, :, 0::2].sin(), pos_y[:, :, 1::2].cos()), dim=3).flatten(2)
+
+        pos = torch.cat((pos_y, pos_x), dim=2).permute(2, 0, 1)
+        pos = pos[None].flatten(2).permute(0, 2, 1).contiguous()
+
+        return pos
+
+    def forward(self, feats):
         """
         Input:
-            - src: [bs, sum(hi*wi), 256]
-            - pos: pos embed for src. [bs, sum(hi*wi), 256]
-            - spatial_shapes: h,w of each level [num_level, 2]
-            - level_start_index: [num_level] start point of level in sum(hi*wi).
-            - valid_ratios: [bs, num_level, 2]
-            - key_padding_mask: [bs, sum(hi*wi)]
-
-            - ref_token_index: bs, nq
-            - ref_token_coord: bs, nq, 4
-        Intermedia:
-            - reference_points: [bs, sum(hi*wi), num_level, 2]
+            - feats: List of features from the backbone
         Outpus: 
-            - output: [bs, sum(hi*wi), 256]
+            - output: List of enhanced features
         """
-        src_list = src.split([H_ * W_ for H_, W_ in spatial_shapes], dim=1)
-        pos_ = pos[:, level_start_index[-1]:]
-        key_padding_mask_ = key_padding_mask[:, level_start_index[-1]:]
+        assert len(feats) == len(self.in_channels)
+        proj_feats = [self.input_proj[i](feat) for i, feat in enumerate(feats)]
 
-        memory = self.encoder(src_list[-1], pos_embed=pos_, src_key_padding_mask=key_padding_mask_)
+        # encoder
+        for i, enc_idx in enumerate(self.use_encoder_idx):
+            N_, C_, H_, W_ = proj_feats[enc_idx].shape
+            # flatten [B, C, H, W] to [B, HxW, C]
+            src_flatten = proj_feats[enc_idx].flatten(2).permute(0, 2, 1)
+            if self.training or self.eval_spatial_size is None:
+                pos_embed = self.create_sinehw_position_embedding(
+                    H_, W_, self.hidden_dim//2, device=src_flatten.device)
+            else:
+                pos_embed = getattr(self, f'pos_embed{enc_idx}', None).to(src_flatten.device)
 
-        c = src.size(2)
-        proj_feats = []
-        for i, (H, W) in enumerate(spatial_shapes):
-            if i == len(spatial_shapes) - 1:
-                proj_feats.append(memory.reshape(-1, H, W, c).permute(0, 3, 1, 2))
-                continue
-            proj_feats.append(src_list[i].reshape(-1, H, W, c).permute(0, 3, 1, 2))
+            proj_feats[enc_idx] = self.encoder[i](
+                src_flatten, 
+                pos_embed=pos_embed
+                ).permute(0, 2, 1).reshape(N_, C_, H_, W_).contiguous()
 
         # broadcasting and fusion
         inner_outs = [proj_feats[-1]]
@@ -450,22 +493,22 @@ class HybridEncoder(nn.Module):
             downsample_feat = self.downsample_convs[idx](feat_low)
             out = self.pan_blocks[idx](torch.concat([downsample_feat, feat_high], dim=1))
             outs.append(out)
-
-        for i in range(len(outs)):
-            outs[i] = outs[i].flatten(2).permute(0, 2, 1)
-
-        return torch.cat(outs, dim=1), None, None
-
+        return outs
+        
 def build_hybrid_encoder(args):
-    return HybridEncoder(
+    return HybridEncoderAsymConv(
+        in_channels=args.in_channels_encoder,
+        feat_strides=args.feat_strides,
         n_levels=args.num_feature_levels,
         hidden_dim=args.hidden_dim,
         nhead=args.nheads,
         dim_feedforward = args.dim_feedforward,
         dropout=args.dropout,
         enc_act='gelu',
-        # pe_temperature=10000,
         expansion=args.expansion,
         depth_mult=args.depth_mult,
         act='silu',
+        temperatureH=args.pe_temperatureH,
+        temperatureW=args.pe_temperatureW,
+        eval_spatial_size= args.eval_spatial_size,
         )

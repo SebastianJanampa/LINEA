@@ -1,13 +1,11 @@
 import torch
+import torch.nn as nn
 import torch.nn.functional as F
-from torch import nn
 from torchvision.transforms.functional import resize
-
-from .utils import sigmoid_focal_loss
 
 from .matcher import build_matcher
 
-from .linea_utils import weighting_function, bbox2distance
+from .linea_utils import weighting_function, bbox2distance, sigmoid_focal_loss
 
 from ..registry import MODULE_BUILD_FUNCS
 

@@ -17,13 +17,13 @@ import torch.nn as nn
 from util.slconfig import DictAction, SLConfig
 
 
-def build_model_main(args):
+def create(args, classname):
     # we use register to maintain models from catdet6 on.
     from models.registry import MODULE_BUILD_FUNCS
-    assert args.modelname in MODULE_BUILD_FUNCS._module_dict
-    build_func = MODULE_BUILD_FUNCS.get(args.modelname)
-    model, criterion, postprocessors = build_func(args)
-    return model, criterion, postprocessors
+    class_module = getattr(args, classname)
+    assert class_module in MODULE_BUILD_FUNCS._module_dict
+    build_func = MODULE_BUILD_FUNCS.get(class_module)
+    return build_func(args)
 
 def main(args, ):
     """main
@@ -33,10 +33,10 @@ def main(args, ):
     if 'HGNetv2' in cfg.backbone:
         cfg.pretrained = False
 
-    linea, _, postprocessor = build_model_main(cfg)
+    linea, postprocessor = create(cfg, 'modelname')
 
     if args.resume:
-        checkpoint = torch.load(args.resume, map_location='cpu')
+        checkpoint = torch.load(args.resume, map_location='cpu', weights_only=False)
         if 'ema' in checkpoint:
             state = checkpoint['ema']['module']
         else:
@@ -73,7 +73,7 @@ def main(args, ):
 
     outout_folder = 'onnx_engines'
     os.makedirs(outout_folder , exist_ok=True)
-    output_file = args.config.split('/')[-1].replace('yml', 'onnx')
+    output_file = args.config.split('/')[-1].replace('py', 'onnx')
     output_file = f'{outout_folder}/{output_file}'
     # args.resume.replace('.pth', '.onnx') if args.resume else 'model.onnx'
 

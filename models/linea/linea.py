@@ -1,36 +1,12 @@
-# ------------------------------------------------------------------------
-# DINO
-# Copyright (c) 2022 IDEA. All Rights Reserved.
-# Licensed under the Apache License, Version 2.0 [see LICENSE for details]
-# ------------------------------------------------------------------------
-# Conditional DETR model and criterion classes.
-# Copyright (c) 2021 Microsoft. All Rights Reserved.
-# Licensed under the Apache License, Version 2.0 [see LICENSE for details]
-# ------------------------------------------------------------------------
-# Modified from DETR (https://github.com/facebookresearch/detr)
-# Copyright (c) Facebook, Inc. and its affiliates. All Rights Reserved.
-# ------------------------------------------------------------------------
-# Modified from Deformable DETR (https://github.com/fundamentalvision/Deformable-DETR)
-# Copyright (c) 2020 SenseTime. All Rights Reserved.
-# ------------------------------------------------------------------------
-import copy
-import math
-from typing import List
 import torch
 from torch import nn
-from torchvision.transforms.functional import resize
 
-import numpy as np
-
-from .utils import sigmoid_focal_loss, MLP
+from .hgnetv2 import build_hgnetv2
+from .hybrid_encoder import build_hybrid_encoder
+from .decoder import build_decoder
 
 from ..registry import MODULE_BUILD_FUNCS
 
-from .hgnetv2 import build_hgnetv2
-from .hybrid_encoder_asymmetric_conv import build_hybrid_encoder_with_asymmetric_conv
-from .decoder import build_decoder
-
-from .linea_utils import *
 
 class LINEA(nn.Module):
     """ This is the Cross-Attention Detector module that performs object detection """
@@ -38,8 +14,6 @@ class LINEA(nn.Module):
         backbone,
         encoder,
         decoder,
-        # multiscale = None,
-        use_lmap = False
         ):
         """ Initializes the model.
         Parameters:
@@ -54,16 +28,8 @@ class LINEA(nn.Module):
         self.backbone = backbone
         self.encoder = encoder
         self.decoder = decoder
-
-        # for auxiliary branch
-        if use_lmap:
-            self.aux_branch = nn.ModuleList()
-            hidden_dim = encoder.hidden_dim
-            for i in range(3):
-                n = 2 ** i
-                self.aux_branch.append(nn.Conv2d(hidden_dim, 1, 1))
         
-    def forward(self, samples, targets:List=None):
+    def forward(self, samples, targets=None):
         """ The forward expects a NestedTensor, which consists of:
                - samples.tensor: batched images, of shape [batch_size x 3 x H x W]
                - samples.mask: a binary mask of shape [batch_size x H x W], containing 1 on padded pixels
@@ -83,14 +49,6 @@ class LINEA(nn.Module):
         features = self.encoder(features)
 
         out = self.decoder(features, targets)
-
-        if self.training and hasattr(self, 'aux_branch'):
-            lmaps = []
-            for feat, convs in zip(features, self.aux_branch):
-                lmap = convs(feat)
-                lmaps.append(lmap)
-            # lmaps = torch.cat(lmaps, dim=1)
-            out['aux_lmap'] = lmaps
 
         return out
 
@@ -141,14 +99,13 @@ def build_linea(args):
     num_classes = args.num_classes
 
     backbone = build_hgnetv2(args)
-    encoder = build_hybrid_encoder_with_asymmetric_conv(args)
+    encoder = build_hybrid_encoder(args)
     decoder = build_decoder(args)
 
     model = LINEA(
         backbone,
         encoder,
         decoder,
-        use_lmap=args.use_lmap
     )
 
     postprocessors = PostProcess()
