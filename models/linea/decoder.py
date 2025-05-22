@@ -456,18 +456,18 @@ class LINEATransformer(nn.Module):
         output_memory = self.enc_output_norm(self.enc_output(output_memory))
 
         enc_outputs_class_unselected = self.enc_out_class_embed(output_memory)
-        enc_outputs_coord_unselected = self.enc_out_bbox_embed(output_memory) + output_proposals # (bs, \sum{hw}, 4) unsigmoid
         topk = self.num_queries
         topk_proposals = torch.topk(enc_outputs_class_unselected.max(-1)[0], topk, dim=1)[1] # bs, nq
 
-        # gather boxes
-        refpoint_embed_undetach = torch.gather(enc_outputs_coord_unselected, 1, topk_proposals.unsqueeze(-1).repeat(1, 1, 4) ) # unsigmoid
+        # gathering memory and proposals
+        selected_output_memory = torch.gather(output_memory, 1, topk_proposals.unsqueeze(-1).repeat(1, 1, output_memory.shape[-1]))
+        selected_output_proposals = torch.gather(output_proposals, 1, topk_proposals.unsqueeze(-1).repeat(1, 1, output_proposals.shape[-1]))
+        refpoint_embed_undetach = self.enc_out_bbox_embed(selected_output_memory) + selected_output_proposals # (bs, \sum{hw}, 4) unsigmoid
         refpoint_embed = refpoint_embed_undetach.detach()
-        init_box_proposal = torch.gather(output_proposals, 1, topk_proposals.unsqueeze(-1).repeat(1, 1, 4)).sigmoid() # sigmoid
 
         # gather tgt
-        tgt_undetach = torch.gather(output_memory, 1, topk_proposals.unsqueeze(-1).repeat(1, 1, self.d_model))
-        tgt = self.tgt_embed.weight[:, None, :].repeat(1, bs, 1) # nq, bs, d_model
+        tgt_undetach = torch.gather(output_memory, 1, topk_proposals.unsqueeze(-1).repeat(1, 1, self.d_model)) if self.training else None
+        tgt = self.tgt_embed.weight[:, None, :].repeat(1, bs, 1)  # nq, bs, d_model
 
         # denoise (only for training)
         if self.training and targets is not None:

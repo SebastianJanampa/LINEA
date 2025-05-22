@@ -50,13 +50,15 @@ We highlight two advantages of our proposed mechanism:
 </details>
 
 ## 🚀 Updates
+- [x] **\[2025.02.22\]** LINEA has been accepted in ICIP 2025
+- [x] **\[2025.02.22\]** Fix bug and reduce FLOPs
 - [x] **\[2025.02.19\]** Release LINEA series.
 - [x] **\[2025.02.20\]** Release LINEA weights.
 - [x] **\[2025.02.20\]** Release [Google Colab Notebook](https://colab.research.google.com/github/SebastianJanampa/LINEA/blob/master/LINEA_tutorial.ipynb).
 - [x] **\[2025.02.20\]** Release [HuggingFace 🤗 Space](https://huggingface.co/spaces/SebasJanampa/LINEA).
 
 ## 📝 TODO
-- [ ] Upload paper (currently under review)
+- [ ] Upload paper (accepted in ICIP 2025)
 - [x] Upload requirements
 - [x] Upload LINEA weigths.
 - [x] Create HuggingFace 🤗 space.
@@ -67,18 +69,18 @@ We highlight two advantages of our proposed mechanism:
 ### Wireframe
 | Model | Dataset | AP<sup>5</sup> | AP<sup>10</sup> | AP<sup>15</sup> | #Params | Latency | GFLOPs | config | checkpoint |
 | :---: | :---: | :---: |  :---: | :---: | :---: | :---: | :---: | :---: | :---: | 
-**LINEA&#8209;N** | Wireframe | **58.7** | **65.0** | **67.9** | 3.9M | 2.54ms | 12.1 | [py](https://github.com/SebastianJanampa/LINEA/blob/master/configs/linea/linea_hgnetv2_n.py) | [65.0](https://github.com/SebastianJanampa/storage/releases/download/LINEA/linea_hgnetv2_n.pth) | 
-**LINEA&#8209;S** | Wireframe | **58.4** | **64.7** | **67.6** | 8.6M | 3.08ms | 31.7 | [py](https://github.com/SebastianJanampa/LINEA/blob/master/configs/linea/linea_hgnetv2_s.py) | [64.7](https://github.com/SebastianJanampa/storage/releases/download/LINEA/linea_hgnetv2_m.pth) | 
-**LINEA&#8209;M** | Wireframe | **59.5** | **66.3** | **69.1** | 13.5M | 3.87ms | 45.6 | [py](https://github.com/SebastianJanampa/LINEA/blob/master/configs/linea/linea_hgnetv2_m.py) | [66.3](https://github.com/SebastianJanampa/storage/releases/download/LINEA/linea_hgnetv2_m.pth) | 
-**LINEA&#8209;L** | Wireframe | **61.0** | **67.9** | **70.8** | 25.2M | 5.78ms | 83.8 | [py](https://github.com/SebastianJanampa/LINEA/blob/master/configs/linea/linea_hgnetv2_l.py) | [67.9](https://github.com/SebastianJanampa/storage/releases/download/LINEA/linea_hgnetv2_l.pth) |
+**LINEA&#8209;N** | Wireframe | **58.7** | **65.0** | **67.9** | 3.9M | 2.54ms / 2.50ms | 12.1 / 11.5 | [py](https://github.com/SebastianJanampa/LINEA/blob/master/configs/linea/linea_hgnetv2_n.py) | [65.0](https://github.com/SebastianJanampa/storage/releases/download/LINEA/linea_hgnetv2_n.pth) | 
+**LINEA&#8209;S** | Wireframe | **58.4** | **64.7** | **67.6** | 8.6M | 3.08ms / 3.07ms | 31.7 / 29.4 | [py](https://github.com/SebastianJanampa/LINEA/blob/master/configs/linea/linea_hgnetv2_s.py) | [64.7](https://github.com/SebastianJanampa/storage/releases/download/LINEA/linea_hgnetv2_m.pth) | 
+**LINEA&#8209;M** | Wireframe | **59.5** | **66.3** | **69.1** | 13.5M | 3.87ms / 3.79ms | 45.6 / 43.4 | [py](https://github.com/SebastianJanampa/LINEA/blob/master/configs/linea/linea_hgnetv2_m.py) | [66.3](https://github.com/SebastianJanampa/storage/releases/download/LINEA/linea_hgnetv2_m.pth) | 
+**LINEA&#8209;L** | Wireframe | **61.0** | **67.9** | **70.8** | 25.2M | 5.78ms /5.42ms | 83.8 / 81.5 | [py](https://github.com/SebastianJanampa/LINEA/blob/master/configs/linea/linea_hgnetv2_l.py) | [67.9](https://github.com/SebastianJanampa/storage/releases/download/LINEA/linea_hgnetv2_l.pth) |
 
 ### YorkUrban
 | Model | Dataset | AP<sup>5</sup> | AP<sup>10</sup> | AP<sup>15</sup> | #Params | Latency | GFLOPs | config | checkpoint |
 | :---: | :---: | :---: |  :---: | :---: | :---: | :---: | :---: | :---: | :---: | 
-**LINEA&#8209;N** | YorkUrban | **27.3** | **30.5** | **32.5** | 3.9M | 2.54ms | 12.1 | [py](https://github.com/SebastianJanampa/LINEA/blob/master/configs/linea/linea_hgnetv2_n.py) | [65.0](https://github.com/SebastianJanampa/storage/releases/download/LINEA/linea_hgnetv2_n.pth) | 
-**LINEA&#8209;S** | YorkUrban | **28.9** | **32.6** | **34.8** | 8.6M | 3.08ms | 31.7 | [py](https://github.com/SebastianJanampa/LINEA/blob/master/configs/linea/linea_hgnetv2_s.py) | [64.7](https://github.com/SebastianJanampa/storage/releases/download/LINEA/linea_hgnetv2_s.pth) | 
-**LINEA&#8209;M** | YorkUrban | **30.3** | **34.5** | **36.7** | 13.5M | 3.87ms | 45.6 | [py](https://github.com/SebastianJanampa/LINEA/blob/master/configs/linea/linea_hgnetv2_m.py) | [66.3](https://github.com/SebastianJanampa/storage/releases/download/LINEA/linea_hgnetv2_m.pth) | 
-**LINEA&#8209;L** | YorkUrban | **30.9** | **34.9** | **37.3** | 25.2M | 5.78ms | 83.8 | [py](https://github.com/SebastianJanampa/LINEA/blob/master/configs/linea/linea_hgnetv2_l.py) | [67.9](https://github.com/SebastianJanampa/storage/releases/download/LINEA/linea_hgnetv2_l.pth) |
+**LINEA&#8209;N** | YorkUrban | **27.3** | **30.5** | **32.5** | 3.9M | 2.54ms / 2.50ms | 12.1 / 11.5 | [py](https://github.com/SebastianJanampa/LINEA/blob/master/configs/linea/linea_hgnetv2_n.py) | [65.0](https://github.com/SebastianJanampa/storage/releases/download/LINEA/linea_hgnetv2_n.pth) | 
+**LINEA&#8209;S** | YorkUrban | **28.9** | **32.6** | **34.8** | 8.6M | 3.08ms / 3.07ms | 31.7 / 29.4 | [py](https://github.com/SebastianJanampa/LINEA/blob/master/configs/linea/linea_hgnetv2_s.py) | [64.7](https://github.com/SebastianJanampa/storage/releases/download/LINEA/linea_hgnetv2_s.pth) | 
+**LINEA&#8209;M** | YorkUrban | **30.3** | **34.5** | **36.7** | 13.5M | 3.87ms / 3.79ms | 45.6 / 43.4 | [py](https://github.com/SebastianJanampa/LINEA/blob/master/configs/linea/linea_hgnetv2_m.py) | [66.3](https://github.com/SebastianJanampa/storage/releases/download/LINEA/linea_hgnetv2_m.pth) | 
+**LINEA&#8209;L** | YorkUrban | **30.9** | **34.9** | **37.3** | 25.2M | 5.78ms /5.42ms | 83.8 / 81.5 | [py](https://github.com/SebastianJanampa/LINEA/blob/master/configs/linea/linea_hgnetv2_l.py) | [67.9](https://github.com/SebastianJanampa/storage/releases/download/LINEA/linea_hgnetv2_l.pth) |
 
 **Notes:**
 - **Latency** is evaluated on a single NVIDIA RTX A5500 GPU with $batch\\_size = 1$, $fp16$, and $TensorRT==10.5.0$.
@@ -101,17 +103,20 @@ pip install -r requirements.txt
 
 ### Data Preparation
 
-<details>
-<summary> Wireframe Dataset </summary>
+To reproduce our results, you need to process two datasets, [ShanghaiTech](https://github.com/huangkuns/wireframe) and [YorkUrban](https://www.elderlab.yorku.ca/resources/york-urban-line-segment-database-information/). 
 
-TODO
+```shell
+mkdir data
+cd data
+wget https://github.com/SebastianJanampa/storage/releases/download/v1.0.0/wireframe_processed.zip
+wget https://github.com/SebastianJanampa/storage/releases/download/v1.0.0/york_processed.zip
 
-</details>
+unzip wireframe_processed.zip
+unzip york_processed.zip
 
-<details>
-<summary> YorkUrban Dataset </summary>
-  TODO
-</details>
+rm *zip
+cd ..
+```
 
 
 ## Usage
@@ -220,7 +225,7 @@ export model=l  # n s m l
 
 2. Export onnx
 ```shell
-python tools/deployment/export_onnx.py --check -c configs/linea/linea_hgnetv2_${model}_coco.yml -r linea_hgnetv2_${model}.pth
+python tools/deployment/export_onnx.py --check -c configs/linea/linea_hgnetv2_${model}.py -r linea_hgnetv2_${model}.pth
 ```
 
 3. Export [tensorrt](https://docs.nvidia.com/deeplearning/tensorrt/install-guide/index.html)
@@ -231,7 +236,7 @@ trtexec --onnx="model.onnx" --saveEngine="model.engine" --fp16
 
 or, for all files inside a folder
 ```shell
-python export_tensorrt.py
+python tools/deployment/export_tensorrt.py
 ```
 
 </details>
@@ -254,16 +259,16 @@ Inference on images and videos is supported.
 
 For a single file
 ```shell
-python tools/inference/onnx_inf.py --onnx model.onnx --input example/example1.jpg  
-python tools/inference/trt_inf.py --trt model.engine --input example/example1.jpg
-python tools/inference/torch_inf.py -c configs/linea/linea_hgnetv2_${model}.yml -r <checkpoint.pth> --input example/example1.jpg --device cuda:0
+python tools/inference/onnx_inf.py --onnx linea_hgnetv2_${model}.onnx --input example/example1.jpg  
+python tools/inference/trt_inf.py --trt linea_hgnetv2_${model}.engine --input example/example1.jpg
+python tools/inference/torch_inf.py -c configs/linea/linea_hgnetv2_${model}.py -r <checkpoint.pth> --input example/example1.jpg --device cuda:0
 ```
 
 For a folder
 ```shell
-python tools/inference/onnx_inf.py --onnx model.onnx --input example  
-python tools/inference/trt_inf.py --trt model.engine --input example
-python tools/inference/torch_inf.py -c configs/linea/linea_hgnetv2_${model}.yml -r linea_hgnetv2_${model}t.pth --input example --device cuda:0
+python tools/inference/onnx_inf.py --onnx linea_hgnetv2_${model}.onnx --input example  
+python tools/inference/trt_inf.py --trt linea_hgnetv2_${model}.engine --input example
+python tools/inference/torch_inf.py -c configs/linea/linea_hgnetv2_${model}.py -r linea_hgnetv2_${model}t.pth --input example --device cuda:0
 ```
 </details>
 
