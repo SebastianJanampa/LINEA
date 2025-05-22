@@ -35,6 +35,10 @@ The University of New Mexico
 Department of Electrical and Computer Engineering
 </p>
 
+<p align="center">
+  <img src=https://github.com/user-attachments/assets/21f9fc86-d0bb-4ebe-9d82-e68991818bd8 border=0 width=1000>
+</p>
+
 LINEA is a powerful real-time line detector that introduces Line Attention mechanism,
 achieving outstanding performance without being pretrained on COCO or Object365 datasets. 
 
@@ -46,6 +50,10 @@ We highlight two advantages of our proposed mechanism:
 
 - Line attention is a sparse mechanism like deformable attention. This significantly reduces memory complexity.
 - Line attention pays attention to the line endpoints like traditional attention but also attends locations between the endpoints.
+
+<p align="center">
+  <img src=https://github.com/user-attachments/assets/a08cb164-458d-4802-abdc-0294864c89d4 border=0 width=1000>
+</p>
 
 </details>
 
