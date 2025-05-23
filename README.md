@@ -8,6 +8,10 @@
         <img alt="colab" src="https://img.shields.io/badge/license-apache%202.0-blue?style=for-the-badge">
   </a>
 
+  <a href="https://arxiv.org/abs/2505.16264">
+        <img alt="arxiv" src="https://img.shields.io/badge/-paper-gray?style=for-the-badge&logo=arxiv&labelColor=red">
+  </a>
+  
   <a href="https://colab.research.google.com/github/SebastianJanampa/LINEA/blob/master/LINEA_tutorial.ipynb">
         <img alt="colab" src="https://img.shields.io/badge/-colab-blue?style=for-the-badge&logo=googlecolab&logoColor=white&labelColor=%23daa204&color=yellow">
   </a>
@@ -21,7 +25,7 @@
 <p align="center">
     📄 This is the official implementation of the paper:
     <br>
-   LINEA: Fast and accurate line detection using scalable transformers
+    <a href="https://arxiv.org/abs/2505.16264">LINEA: Fast and accurate line detection using scalable transformers</a>
 </p>
 
 
@@ -35,6 +39,12 @@ The University of New Mexico
 Department of Electrical and Computer Engineering
 </p>
 
+<p align="center">
+  <a href="https://paperswithcode.com/sota/line-segment-detection-on-york-urban-dataset?p=linea-fast-and-accurate-line-detection-using">
+    <img alt="sota" src="https://img.shields.io/endpoint.svg?url=https://paperswithcode.com/badge/linea-fast-and-accurate-line-detection-using/line-segment-detection-on-york-urban-dataset">
+    </a>
+</p>
+    
 <p align="center">
   <img src=https://github.com/user-attachments/assets/21f9fc86-d0bb-4ebe-9d82-e68991818bd8 border=0 width=1000>
 </p>
@@ -65,13 +75,6 @@ We highlight two advantages of our proposed mechanism:
 - [x] **\[2025.02.20\]** Release [Google Colab Notebook](https://colab.research.google.com/github/SebastianJanampa/LINEA/blob/master/LINEA_tutorial.ipynb).
 - [x] **\[2025.02.20\]** Release [HuggingFace 🤗 Space](https://huggingface.co/spaces/SebasJanampa/LINEA).
 
-## 📝 TODO
-- [ ] Upload paper (accepted in ICIP 2025)
-- [x] Upload requirements
-- [x] Upload LINEA weigths.
-- [x] Create HuggingFace 🤗 space.
-- [x] Create Collab demo.
-
 ## Model Zoo
 
 ### Wireframe
@@ -92,6 +95,7 @@ We highlight two advantages of our proposed mechanism:
 
 **Notes:**
 - **Latency** is evaluated on a single NVIDIA RTX A5500 GPU with $batch\\_size = 1$, $fp16$, and $TensorRT==10.5.0$.
+- **Paper / Improved** **Paper** represents the information provided in the paper  and **Improved** represents our new metrics after solving bugs in the code.
 
 
 
