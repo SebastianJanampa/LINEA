@@ -335,7 +335,15 @@ If you use `LINEA` or its methods in your work, please cite the following BibTeX
 <summary> bibtex </summary>
 
 ```latex
-TODO
+@misc{janampa2025linea,
+      title={LINEA: Fast and Accurate Line Detection Using Scalable Transformers}, 
+      author={Sebastian Janampa and Marios Pattichis},
+      year={2025},
+      eprint={2505.16264},
+      archivePrefix={arXiv},
+      primaryClass={cs.CV},
+      url={https://arxiv.org/abs/2505.16264}, 
+}
 ```
 </details>
 
